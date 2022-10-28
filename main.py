@@ -1,4 +1,5 @@
 # Python
+from curses.ascii import US
 from uuid import UUID
 from datetime import date
 from datetime import datetime
@@ -52,6 +53,12 @@ class Tweet(BaseModel):
     update_at: Optional[datetime] = Field(default=None)
     by: User = Field(...)
 
+class UserRegistrer(User):
+    password: str = Field(
+        ..., 
+        min_length=8,
+        max_length=64
+    )
 # Path Operations
 
 ## Users
@@ -65,7 +72,21 @@ class Tweet(BaseModel):
     tags=["Users"]
 )
 def signup(): 
-    pass
+    """
+    Signup
+
+    This path operations registrer a user in the app
+
+    Parameters:
+        -Request body parameters
+            -UserRegistrer
+    Returns a json with the basic user information:
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last_name: str
+        - birth_date: str
+    """
 
 ### Login a user
 @app.post(
