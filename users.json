@@ -1,1 +1,26 @@
-[{"user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "email": "facundo@example.com", "first_name": "facundo", "last_name": "Garcia", "birth_date": "2022-10-29", "password": "holasoyfacundo"}, {"user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "email": "miguel@example.com", "first_name": "miguel", "last_name": "Torres", "birth_date": "2022-10-29", "password": "holasoymiguel"}, {"user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "email": "rocio@example.com", "first_name": "rocio", "last_name": "Torres", "birth_date": "2022-10-10", "password": "holasoyrocio"}]
+[
+    {
+        "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "email": "facundo@example.com",
+        "first_name": "facundo",
+        "last_name": "Garcia",
+        "birth_date": "2022-10-29",
+        "password": "holasoyfacundo"
+    },
+    {
+        "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "email": "miguel@example.com",
+        "first_name": "miguel",
+        "last_name": "Torres",
+        "birth_date": "2022-10-29",
+        "password": "holasoymiguel"
+    },
+    {
+        "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "email": "rocio@example.com",
+        "first_name": "rocio",
+        "last_name": "Torres",
+        "birth_date": "2022-10-10",
+        "password": "holasoyrocio"
+    }
+]
