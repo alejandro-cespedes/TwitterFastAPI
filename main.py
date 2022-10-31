@@ -1,5 +1,6 @@
 # Python
 from collections import UserDict
+from email import message
 import json
 from uuid import UUID
 from datetime import date
@@ -175,9 +176,30 @@ def show_a_user(user_id: UUID = Path(...)):
     summary="Delete a User",
     tags=["Users"]
 )
-def delete_a_user(): 
-    pass
+def delete_a_user(user_id: UUID = Path(...)): 
+    """
+    This Path operations delete a user in the app
 
+    Parameters:
+        -
+    
+    Returns a delete in the app, with the following keys
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last_name: str
+        - birth_date: datetime
+    """
+    with open("users.json", "r+", encoding="utf-8") as f:
+        usuarios = json.loads(f.read())
+        id = str(user_id)
+    for user in usuarios:
+        if user["user_id"] == id:
+            usuarios.remove(user)
+            with open("users.json", "w", encoding="utf-8") as f:
+                f.seek(0)
+                f.write(json.dumps(usuarios))
+                return user
 ### Update a user
 @app.put(
     path="/users/{user_id}/update",
