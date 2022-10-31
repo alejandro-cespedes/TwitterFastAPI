@@ -147,12 +147,12 @@ def show_all_users():
 )
 def show_a_user(user_id: UUID = Path(...)): 
     """
-    This Path operations show all users in the app
+    This Path operations show a users in the app
 
     Parameters:
         -
     
-    Returns a Json list with all users in the app, with the following keys
+    Returns a Json user in the app, with the following keys
         - user_id: UUID
         - email: Emailstr
         - first_name: str
@@ -163,9 +163,9 @@ def show_a_user(user_id: UUID = Path(...)):
     with open("users.json", "r", encoding="utf-8") as f:
         usuarios = json.loads(f.read())
         id = str(user_id)
-        for user in usuarios:
-            if user["user_id"] == id:
-                return user 
+    for user in usuarios:
+        if user["user_id"] == id:
+            return user 
 
 ### Delete a user
 @app.delete(
@@ -264,8 +264,28 @@ def post(tweet: Tweet = Body(...)):
     summary="Show a tweet",
     tags=["Tweets"]
 )
-def show_a_tweet(): 
-    pass
+def show_a_tweet(tweet_id: UUID = Path(...)): 
+    """
+    This Path operations show a tweet in the app
+
+    Parameters:
+        -
+    
+    Returns a Json tweet in the app, with the following keys
+        tweet_id: UUID 
+        content: str 
+        created_at: datetime 
+        updated_at: Optional[datetime]
+        by: User
+    """
+
+    with open("tweets.json", "r+", encoding="utf-8") as f: 
+        tweets = json.loads(f.read())
+        id = str(tweet_id)
+    for tweet in tweets:
+        if tweet["tweet_id"] == id:
+            return tweet
+
 
 ### Delete a tweet
 @app.delete(
