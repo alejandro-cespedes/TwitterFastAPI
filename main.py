@@ -12,7 +12,7 @@ from pydantic import EmailStr
 from pydantic import Field
 
 # FastAPI
-from fastapi import Body, FastAPI
+from fastapi import Body, Path, FastAPI
 from fastapi import status
 
 app = FastAPI()
@@ -145,8 +145,27 @@ def show_all_users():
     summary="Show a User",
     tags=["Users"]
 )
-def show_a_user(): 
-    pass
+def show_a_user(user_id: UUID = Path(...)): 
+    """
+    This Path operations show all users in the app
+
+    Parameters:
+        -
+    
+    Returns a Json list with all users in the app, with the following keys
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last_name: str
+        - birth_date: datetime
+    """
+
+    with open("users.json", "r", encoding="utf-8") as f:
+        usuarios = json.loads(f.read())
+        id = str(user_id)
+        for user in usuarios:
+            if user["user_id"] == id:
+                return user 
 
 ### Delete a user
 @app.delete(
