@@ -13,7 +13,7 @@ from pydantic import EmailStr
 from pydantic import Field
 
 # FastAPI
-from fastapi import Body, Path, FastAPI
+from fastapi import Body, Path, Form, FastAPI
 from fastapi import status
 
 app = FastAPI()
@@ -61,6 +61,10 @@ class UserRegistrer(User):
         min_length=8,
         max_length=64
     )
+
+class LoginOut(BaseModel): 
+    email: EmailStr = Field(...)
+    message: str = Field(default="Login Successfully!")
 # Path Operations
 
 ## Users
@@ -104,14 +108,33 @@ def signup(user: UserRegistrer = Body(...)):
 ### Login a user
 @app.post(
     path="/login",
-    response_model=User,
+    response_model=LoginOut,
     status_code=status.HTTP_200_OK,
     summary="Login a User",
     tags=["Users"]
 )
-def login(): 
-    pass
+def login(email: EmailStr = Form(...), password: str = Form(...)): 
+    """
+    Login
 
+    This path operations login a user in the app
+
+    Parameters:
+        -Request body parameters
+            - email
+            - password
+    Returns a json with the basic user information:
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last_name: str
+        - birth_date: datetime
+    """
+    with open("users.json", "r+", encoding="utf-8") as f:
+        usuarios = json.loads(f.read())
+    for user in usuarios:
+        if user["email"] == email and user["password"] == password:
+            return LoginOut(email=email)
 ### Show all users
 @app.get(
     path="/users",
@@ -138,6 +161,7 @@ def show_all_users():
     with open("users.json", "r", encoding="utf-8") as f:
         results = json.loads(f.read())
         return results
+    
 ### Show a user
 @app.get(
     path="/users/{user_id}",
