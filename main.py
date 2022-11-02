@@ -66,6 +66,7 @@ class UserRegistrer(User):
 class LoginOut(BaseModel): 
     email: EmailStr = Field(...)
     message: str = Field(default="Login Successfully!")
+
 # Path Operations
 
 ## Users
@@ -403,11 +404,64 @@ def delete_a_tweet(tweet_id: UUID = Path(...)):
 
 ### Update a tweet
 @app.put(
-    path="/tweets/{tweet_id}/update",
+    path="/tweet/{tweet_id}/update",
     response_model=Tweet,
     status_code=status.HTTP_200_OK,
     summary="Update a tweet",
     tags=["Tweets"]
 )
-def update_a_tweet(): 
-    pass
+def update_a_tweet(
+    tweet_id: UUID = Path(
+        ...,
+        title="Tweet ID",
+        description="This is the tweet ID",
+        example="3fa85f64-5717-4562-b3fc-2c963f66afa9"
+    ),
+    content: str = Form(
+        ..., 
+        min_length=1,
+        max_length=256,
+        title="Tweet content",
+        description="This is the content of the tweet",
+    )
+): 
+    """
+    Update Tweet
+
+    This path operation update a tweet information in the app and save in the database
+
+    Parameters:
+    - tweet_id: UUID
+    - content: str
+    
+    Returns a json with:
+        - tweet_id: UUID
+        - content: str 
+        - created_at: datetime 
+        - updated_at: datetime
+        - by: user: User
+    """
+    tweet_id = str(tweet_id)
+    results = read_data("tweets")
+    for tweet in results:
+        if tweet['tweet_id'] == tweet_id:
+            tweet['content'] = content
+            tweet['updated_at'] = str(datetime.now())
+            overwrite_data("tweets", results)
+            return tweet
+
+def read_data(file):
+    with open(f"{file}.json", "r+", encoding="utf-8") as f:
+        return json.loads(f.read()) # Convertirlo a simil de json
+
+def overwrite_data(file, result):
+    with open(f"{file}.json", "w", encoding="utf-8") as f:
+        f.seek(0) # Moverte al inicio del archivo
+        f.write(json.dumps(result)) # Convirtiendo de una list_dic a un json
+
+def show_data(file, id, info):
+    results = read_data(file)
+    id = str(id)
+    for data in results:
+        if data[f"{info}_id"] == id:
+            return data
