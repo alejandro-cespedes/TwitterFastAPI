@@ -1,4 +1,5 @@
 # Python
+from ast import For
 from collections import UserDict
 from email import message
 import json
@@ -232,9 +233,43 @@ def delete_a_user(user_id: UUID = Path(...)):
     summary="Update a User",
     tags=["Users"]
 )
-def update_a_user(): 
-    pass
+def update_a_user(user_id: UUID = Path(
+            ...,
+            title="User ID",
+            description="This is the user ID",
+            example="3fa85f64-5717-4562-b3fc-2c963f66afa3"
+        ),
+        user: User = Body(...)
+    ): 
+    """
+    This Path operations Update a user in the app
 
+    Parameters:
+        -
+    
+    Returns a Update in the app, with the following keys
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last_name: str
+        - birth_date: datetime
+    """
+    
+    user_dict = user.dict()
+    user_id = str(user_id)
+    user_dict = user.dict()
+    user_dict["user_id"] = str(user_dict["user_id"])
+    user_dict["birth_date"] = str(user_dict["birth_date"])
+
+    with open("users.json", "r+", encoding="UTF-8") as f:
+        usuarios = json.loads(f.read())
+    for usr in usuarios:
+        if usr["user_id"] == user_id:
+            usuarios[usuarios.index(usr)] = user_dict
+            with open("users.json", "w", encoding="utf-8") as f:
+                f.seek(0)
+                f.write(json.dumps(usuarios))
+            return user
 
 ## Tweets
 
