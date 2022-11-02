@@ -14,7 +14,7 @@ from pydantic import EmailStr
 from pydantic import Field
 
 # FastAPI
-from fastapi import Body, Path, Form, FastAPI
+from fastapi import Body, Path, Form, Query, FastAPI
 from fastapi import status
 
 app = FastAPI()
@@ -404,64 +404,81 @@ def delete_a_tweet(tweet_id: UUID = Path(...)):
 
 ### Update a tweet
 @app.put(
-    path="/tweet/{tweet_id}/update",
+    path='/tweets/{tweet_id}/update',
     response_model=Tweet,
     status_code=status.HTTP_200_OK,
-    summary="Update a tweet",
+    summary="Update a Tweet",
     tags=["Tweets"]
 )
-def update_a_tweet(
-    tweet_id: UUID = Path(
-        ...,
-        title="Tweet ID",
-        description="This is the tweet ID",
-        example="3fa85f64-5717-4562-b3fc-2c963f66afa9"
+def update_a_tweet(tweet_id: str = Path(
+    ...,
+    min_length=1,
+    title='tweet id',
+    description="this is the tweet id. Minimum characters: 1"
     ),
-    content: str = Form(
-        ..., 
+    content: str = Query(
+        default=None,
         min_length=1,
         max_length=256,
         title="Tweet content",
-        description="This is the content of the tweet",
-    )
-): 
+        description="This is content of the tweet, minimum characters: 1"
+    )):
     """
-    Update Tweet
+    ## Update a tweet
 
-    This path operation update a tweet information in the app and save in the database
+    This path operation Update a tweet
 
-    Parameters:
+    ## Parameters:
+    - path parameter:
+        - tweet_id: str
+    - query parameters:
+        - content: str
+    
+    ## Returns a json list following keys
     - tweet_id: UUID
     - content: str
-    
-    Returns a json with:
-        - tweet_id: UUID
-        - content: str 
-        - created_at: datetime 
-        - updated_at: datetime
-        - by: user: User
+    - created_at: datetime
+    - updated_at: datetime
+    - by: user
     """
-    tweet_id = str(tweet_id)
-    results = read_data("tweets")
+
+    results = read_file(entity='tweets')
     for tweet in results:
         if tweet['tweet_id'] == tweet_id:
-            tweet['content'] = content
+            if content:
+                tweet['content'] = content
             tweet['updated_at'] = str(datetime.now())
-            overwrite_data("tweets", results)
+            print(tweet)
+            overwrite_file(entity='tweets', result_list=results)
             return tweet
 
-def read_data(file):
-    with open(f"{file}.json", "r+", encoding="utf-8") as f:
-        return json.loads(f.read()) # Convertirlo a simil de json
+def read_file(entity: str):
+    with open(entity + '.json', 'r', encoding='utf-8') as f:
+        results = json.loads(f.read())
+    return results
 
-def overwrite_data(file, result):
-    with open(f"{file}.json", "w", encoding="utf-8") as f:
-        f.seek(0) # Moverte al inicio del archivo
-        f.write(json.dumps(result)) # Convirtiendo de una list_dic a un json
+def overwrite_file(entity: str, result_list):
+    with open(entity + '.json', 'w', encoding='utf-8') as f:
+        f.write(json.dumps(result_list))
 
-def show_data(file, id, info):
-    results = read_data(file)
-    id = str(id)
-    for data in results:
-        if data[f"{info}_id"] == id:
-            return data
+def insert_to_file(entity: str, body_parameter: Tweet):
+    with open(entity + '.json', 'r+', encoding='utf-8') as f:
+        results = json.loads(f.read()) # cast str -> json
+        json_dict = body_parameter.dict()
+        
+        if entity == 'tweets':
+            json_dict['tweet_id'] = str(json_dict['tweet_id']) # manual cast / fastapi can't cast uuid automatically
+            json_dict['created_at'] = str(json_dict['created_at']) # manual cast / fastapi can't cast date automatically
+
+            if len(str(json_dict['updated_at'])) > 0 :
+                json_dict['updated_at'] = str(json_dict['updated_at']) # manual cast / fastapi can't cast date automatically
+            json_dict['by']['user_id'] = str(json_dict['by']['user_id'])
+            json_dict['by']['birthday'] = str(json_dict['by']['birthday'])
+
+        else:
+            json_dict['user_id'] = str(json_dict['user_id']) # manual cast / fastapi can't cast uuid automatically
+            json_dict['birthday'] = str(json_dict['birthday'])
+        
+        results.append(json_dict)
+        f.seek(0) # start writing at the beginning like overwrite
+        f.write(json.dumps(results))
